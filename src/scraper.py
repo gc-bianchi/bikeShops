@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import csv
 
 
 def extract_emails(url):
@@ -57,15 +58,27 @@ def scrape_emails(url_list):
     return all_emails
 
 
-# Example usage
-url_list = [
-    "https://www.505cycles.com",
-    "http://www.utahmountainbiking.com",
-    "https://www.mendbicycles.com",
-    "http://2riversbicycle.com",
-    "http://2020cycle.com",
-]
+url_list = []
+with open("justUrls.csv", "r") as csvfile:
+    reader = csv.reader(csvfile)
+    for row in reader:
+        url_list.extend(row)
 
+batch_size = 10
+num_batches = len(url_list) // batch_size + 1
 
-emails = scrape_emails(url_list)
-print(emails)
+for batch_num in range(num_batches):
+    start_index = batch_num * batch_size
+    end_index = (batch_num + 1) * batch_size
+    batch_urls = url_list[start_index:end_index]
+    emails = scrape_emails(batch_urls)
+
+    filename = f"email_batch_{batch_num + 1}.csv"
+    with open(filename, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["email"])
+        writer.writerows([[url] for url in emails])
+
+    print(f"Batch {batch_num + 1} completed. CSV file saved successfully.")
+
+print("All batches processed.")
