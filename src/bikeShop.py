@@ -1,10 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
 
-# URL of the directory page
+
 data = []
 justUrls = []
-stillActiveSites = []
+
 for i in range(21):
     url = "https://www.pinkbike.com/directory/list/united-states/?country=194&category=2&page="
     urlFinal = url + str(i + 1)
@@ -17,6 +18,7 @@ for i in range(21):
         extracted_value = href[start_index:]
         data.append(extracted_value)
         # print(extracted_value)
+
 for url in data:
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -26,4 +28,13 @@ for url in data:
         justUrls.append(href_value)
         print(href_value)
 
-print(justUrls)
+# print(justUrls)
+
+
+filename = "justUrls.csv"
+with open(filename, "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["URL"])
+    writer.writerows([[url] for url in justUrls])
+
+print("CSV file saved successfully.")
